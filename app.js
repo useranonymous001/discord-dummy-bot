@@ -1,8 +1,7 @@
 require("dotenv").config();
 const { ask } = require("./openAI");
-const { searchQueryFromYoutube } = require("./youtube");
 const token = process.env.TOKEN;
-
+const { searchVideoFromYoutube } = require("./play_video");
 // requiring virtual clinet and gatewayIntents i.e., like a permissions to the bot
 const { Client, GatewayIntentBits } = require("discord.js");
 
@@ -25,16 +24,15 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
   try {
-    if (message.content.substring(0, 1) === "!") {
+    if (message.content.substring(0, 1) === "#") {
       const prompt = message.content.substring(1);
-      const answer = ask(prompt);
+      const answer = await ask(prompt);
       if (answer.typeOf !== String) {
         message.reply({
           content:
             "i cannot answer unless the owner pays some dollars for the api request",
         });
       }
-
       // need to add the response from the openAI after getting the right model ....
     }
   } catch (error) {
@@ -46,16 +44,31 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-client.on("messageCreate", (message) => {
+client.on("messageCreate", async (message) => {
+  const PREFIX = "!";
   if (message.author.bot) return;
+  if (!message.content.startsWith(PREFIX)) return;
 
-  try {
-    if (message.content.startsWith("play")) {
-      const query = message.content.split("play ")[1];
-      searchQueryFromYoutube(query);
+  const args = message.content.slice(PREFIX.length).trim().split(" ");
+  const command = args[0].toLowerCase();
+  if (command == "play") {
+    const query = args.slice(1).join(" ");
+    if (!query) {
+      return message.reply({
+        content: "please provide some query...",
+      });
     }
-  } catch (error) {
-    console.log(error.message);
+    const video = await searchVideoFromYoutube(query);
+    if (video) {
+      const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+      message.reply({
+        content: `Here's your video url: ${videoUrl}`,
+      });
+    } else {
+      message.reply({
+        content: "No results found",
+      });
+    }
   }
 });
 

@@ -9,10 +9,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@discordjs/voice": "^0.17.0",
+    "axios": "^1.7.2",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "openai": "^4.53.2",
     "puppeteer": "^22.14.0",
-    "short-unique-id": "^5.2.0"
+    "short-unique-id": "^5.2.0",
+    "ytdl-core": "^4.11.5"
   }
 }
